@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Road Anomalies Map</title>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 90%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="cmdbar" style="margin: 10px">
+      <center>
+        <label class="switch">
+          <input type="checkbox" id="critical_check" onclick="remark()" checked>
+          <span class="slider round">CRITICAL</span>
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="medium_check" onclick="remark()" checked>
+          <span class="slider round">MEDIUM</span>
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="slight_check" onclick="remark()">
+          <span class="slider round">SLIGHT</span>
+        </label>
+      </center>
+    </div>
+    <div id="map"></div>
+    <script>
+      var data = null;
+      var map = null;
+      var markers = [];
+      
+      function remark() {
+        for(var i = 0; i < markers.length; ++i) {
+          markers[i].setMap(null);
+        }
+        markers = [];
+        
+        data.forEach(function (x) {
+          if(x[0] == 1 && !document.getElementById("slight_check").checked)
+            return;
+          if(x[0] == 2 && !document.getElementById("medium_check").checked)
+            return;
+          if(x[0] == 3 && !document.getElementById("critical_check").checked)
+            return;
+          
+          markers.push(
+            new google.maps.Marker({
+              position: {lat: x[1], lng: x[2]},
+              map: map,
+              icon: classify(x)
+            })
+          );
+        });
+      }
+      
+      function queryData() {
+        var request = new XMLHttpRequest();
+        request.overrideMimeType("application/json");
+        request.open('GET', 'data/anomalies.json', false);
+        //request.open('GET', 'http://ec2-18-202-18-70.eu-west-1.compute.amazonaws.com/road-data', false);
+        request.send(null);
+
+        if (request.status === 200) {
+          return JSON.parse(request.responseText);
+        }
+      }
+      
+      function classify(x) {
+        if(x[0] == 3) return 'images/red.png';
+        else if(x[0] == 2) return 'images/violet.png';
+        else if(x[0] == 1) return 'images/blue.png';
+      }
+      
+      function initMap() {
+        data = queryData();
+        
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 15,
+          center: {lat: data[0][1], lng: data[0][2]}
+        });
+        
+        remark();
+      }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtM-ws6hnzedBySZqHNCbw_et6j2UgtZo&callback=initMap">
+    </script>
+  </body>
+</html>

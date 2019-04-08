@@ -1,0 +1,25 @@
+==================================
+Road Monitoring Data Visualization
+==================================
+
+To detect anomalies we assume that the square of the Z component of the
+accellelometer are normally distributed.
+
+Why the square? A Z component can be either negative or positive and we are
+going to compute means and the standard deviations. We are not interested in the
+classification of the anomaly and a positive value can be handled easily.
+
+For the detection we use the 68–95–99.7 rule.
+
+Let X a random variable of the event that we are observing (the Z axis of the 
+accellelometer), u = E[X] and o the standard deviation.
+
+Empirically, those probabilities holds:
+
+Pr[u -o <= X <= u +o] ~ 0.6827
+Pr[u -2*o <= X <= u +2*o] ~ 0.9545
+Pr[u -3*o <= X <= u +3*o] ~ 0.9973
+
+Using these 3 rules we can detect anomalies seeing if an observation violates
+this rules.
+
