@@ -6,7 +6,7 @@
 #include <iomanip>
 using namespace std;
 
-#define TRESHOLD 1
+#define TRESHOLD 100
 
 vector<double> split(const string& str, const string& delim)
 {
@@ -26,13 +26,18 @@ vector<double> split(const string& str, const string& delim)
 
 // gps distance in meters using earth radius
 
-#define d2r (M_PI / 180.0)
-double distance(double lat1, double long1, double lat2, double long2) {
-    double dlong = (long2 - long1) * d2r;
-    double dlat = (lat2 - lat1) * d2r;
-    double a = pow(sin(dlat/2.0), 2) + cos(lat1*d2r) * cos(lat2*d2r) * pow(sin(dlong/2.0), 2);
+#define D2R (M_PI / 180.0)
+#define EARTH_RAY 6371
+double distance(double lat1,
+                double long1,
+                double lat2,
+                double long2) {
+    double dlong = (long2 - long1) * D2R;
+    double dlat = (lat2 - lat1) * D2R;
+    double a = pow(sin(dlat/2.0), 2) + cos(lat1*D2R) 
+        * cos(lat2*D2R) * pow(sin(dlong/2.0), 2);
     double c = 2 * atan2(sqrt(a), sqrt(1-a));
-    double d = 3956 * c; 
+    double d = EARTH_RAY*1000 * c; 
     return d;
 }
 
@@ -56,8 +61,8 @@ int main() {
   ofstream os("mean_std_data");
   os << setprecision (17);
 
-  double oldx = 0.3333;
-  double oldy = 0.3333;
+  double oldx = 0.43434343;
+  double oldy = 0.43434343;
 
   for(size_t i = 0; i < dataset.size(); ++i) {
     
@@ -71,8 +76,8 @@ int main() {
     double mean = 0;
     vector< vector<double> > near;
     
-    double noldx = 0.3333;
-    double noldy = 0.3333;
+    double noldx = 0.43434343;
+    double noldy = 0.43434343;
     
     for(size_t j = 0; j < dataset.size(); ++j) {
       if(i != j) {
@@ -87,7 +92,6 @@ int main() {
         }
       }
     }
-    cerr << near.size() << endl;
     if(near.size() == 0) continue;
     
     mean /= near.size();
